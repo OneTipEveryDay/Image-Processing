@@ -178,8 +178,121 @@ To find familiar blocks, we use correlation, which is subtracting the average fr
 
 <img width="1595" height="298" alt="image" src="https://github.com/user-attachments/assets/1629a255-3de2-4ed3-80b6-0be4ebbc95fa" />
 
+## Image Transformations
+g(x,y)=T[f(x,y)]
+> 1. Point operations: operations on single pixels
+> 2. Spatial filtering: operations considering pixel neighborhoops
+> 3. Global methods: operations considering whole image
+### point operations
+> Smallest possible neighborhood is of size Ixl
+> Process each point independently of the others
+> Transformation function T remaps the sample's value: s = T(r)
+> > r is the value at the point in question
+> > s is the new value in the processed result
+> > T is a intensity transformation functio
+
+### Point Processing Examples
+<img width="1810" height="766" alt="image" src="https://github.com/user-attachments/assets/96da45cb-cd15-40cd-a950-b8f250aa41be" />
+
+### Point Operations: Contrast stretching and Thresholding
+> Contrast stretching: produces an image of higher contrast than the original
+> Thresholding: produces a binary (two-intensity level) image  
+
+### Histogram
+Histogram: a discrete function h(r) which counts
+the number of pixels in the image having intensity r
+If h(r) is normalized, it measures the probability of
+occurrence of intensity level r in an image
+<img width="1810" height="766" alt="image" src="https://github.com/user-attachments/assets/fa27f573-31b8-4ad3-8d84-cf3356ee0eca" />
+
+### Intensity quantization in practice
+
+> Option 1: linear quantization
+> > pro: simple, convenient, amenable to arithmetic
+> > con: requires more steps (wastes memory)
+> Option 2: power-law quantization
+> > pro: fairly simple, approximates ideal exponential quantization
+> > con: need to linearize before doing pixel arithmetic
+> Option 2: floating-point quantization
+> > pro: close to exponential; no parameters; amenable to arithmetic
+> > con: definitely takes more than 8 bits
+
+### Gamma quantization
+Close enough to ideal perceptually uniform exponential
+<img width="1810" height="638" alt="image" src="https://github.com/user-attachments/assets/ba064e76-5233-4137-b53c-5fa7eaf8f89b" />
+
+### Images and histograms
+<img width="1810" height="605" alt="image" src="https://github.com/user-attachments/assets/7de9041a-458d-4b5a-b5d5-16ed875431b5" />
+<img width="1810" height="516" alt="image" src="https://github.com/user-attachments/assets/62372d83-becb-4708-9f9b-a46761d9b58d" />
+
+<img width="1810" height="581" alt="image" src="https://github.com/user-attachments/assets/e2f7ace8-017c-452e-a4e3-41bf29183703" />
+
+<img width="1810" height="758" alt="image" src="https://github.com/user-attachments/assets/66e89775-c890-44d7-a357-269c2faff865" />
 
 
+### Image Statistics
+<img width="1810" height="455" alt="image" src="https://github.com/user-attachments/assets/3051cb09-d23b-4bc3-bfeb-8ec19178d387" />
+
+### Image Entropy
+The image entropy specifies the uncertainty in
+the image values.Measures the averaged amount of information
+required to encode the image values. 
+<img width="1810" height="143" alt="image" src="https://github.com/user-attachments/assets/20b15951-5053-4ed8-ab8c-bf63c490f206" />
+<img width="1837" height="657" alt="image" src="https://github.com/user-attachments/assets/d89ec624-f74b-4d80-91e1-d3c915efc2cb" />
+
+### Histogram based image distance
+> Problem: Given two images A and B whose (normalized) histogram
+are P and P define the distance D(A,B) between the images.
+<img width="1837" height="355" alt="image" src="https://github.com/user-attachments/assets/8ab11f1a-d5be-4f4f-9679-2198fbaa4cf6" />
+
+## Inage Filtering 
+Image filtering: computes a function of a
+local neighborhood at each pixel position
+Called "Local operator," "Neighborhood
+operator," or "Window operator"
+> We can transform the signal into repeating blocks, so we can write a Fourier series for it and filter it in the frequency domain by changing the frequency range to achieve the desired result.
+<img width="1764" height="635" alt="image" src="https://github.com/user-attachments/assets/76826877-fcdf-4ecd-aebf-44165ab26ebd" />
+LPF --> smooth the image
+
+### Common types of noise
+> Salt and pepper noise:
+>  > random occurrences of black and white pixels
+>  Impulse noise:
+>  >   random occurrences of white pixels
+>   Gaussian noise:
+>  > variations in intensity drawn from a Gaussian normal distribution
+Idea: Use the information coming from the
+neighboring pixels for processing . Design a transformation function of the local
+neighborhood at each pixel in the image
+
+### First attempt at a solution
+Let's replace each pixel with an average
+of all the values in its neighborhood
+Moving average in 1D:
+<img width="1764" height="465" alt="image" src="https://github.com/user-attachments/assets/20f7ec43-ccd9-422e-8d4e-64c78460e076" />
+
+### Discrete convolution
+Simple averaging:every sample gets the same weight
+<img width="1764" height="169" alt="image" src="https://github.com/user-attachments/assets/4445b933-b79a-4a2c-a7c2-11af037e61ec" />
+Convolution: same idea but with weighted average  , each sample gets its own weight (normally zero far away) . This is all convolution is: it is a moving weighted average
+<img width="1764" height="169" alt="image" src="https://github.com/user-attachments/assets/d84122d4-0616-4a80-a556-2bb9e228a317" />
+Sequence of weights a[j] is called a filter
+Filter is nonzero over its region of support
+### Discrete filtering in 2D
+Same equation, one more index
+<img width="1764" height="132" alt="image" src="https://github.com/user-attachments/assets/dd23dbba-21d8-456b-8074-f421eb5e98fe" />
+often apply several filters one after another: (((a * b1) * b2) * b3)
+
+### Image Correlation Filtering
+> Center filter g at each pixel in image f
+> Multiply weights by corresponding pixels
+> Set resulting value in output image h
+> g is called a filter, mask, kernel, or template
+> Linear filtering is sum of dot product at each pixel position
+> Filtering operation called cross-correlation
+
+### Sharpening
+<img width="1764" height="559" alt="image" src="https://github.com/user-attachments/assets/58feae39-570d-421a-9933-bbef8c2a218d" />
 
 
 
