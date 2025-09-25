@@ -526,6 +526,68 @@ An advanced and versatile technique for clustering-based segmentation
 >‌ > (2) Gradient ascent to mode.
 
 ### Graph-Theoretic Image Segmentation
+> Build a weighted graph G=(V,E) from image
+> > V: image pixels
+> > E: connections between pairs of nearby pixels
+> > W: probability that i &j belong to the same region
+> Segmentation = graph partition
+<img width="1553" height="603" alt="image" src="https://github.com/user-attachments/assets/5bfa3f9f-b717-491d-bccc-0053a2a85273" />
+
+### Segmentation by graph partitioning
+> Break graph into segments
+> > Delete links that cross between segments
+> > Easiest to break links that have low affinity
+> > > similar pixels should be in the same segments
+> > > dissimilar pixels should be in different segments
+### Affinity between pixels
+> Similarities among pixel descriptors σ = Scale factor... it will hunt us later
+<img width="1466" height="86" alt="image" src="https://github.com/user-attachments/assets/8c393cd3-fbd8-455f-8572-95a51d17a8b9" />
+<img width="1486" height="345" alt="image" src="https://github.com/user-attachments/assets/733f4c4b-ab74-4119-8a7a-6547a0aebfa6" />
+
+### Minimum graph cut
+> A cut of a graph G is the set of edges S such that removal of S from G disconnects G.
+> Cut: sum of the weight of the cut edges:
+<img width="1486" height="345" alt="image" src="https://github.com/user-attachments/assets/3a917010-69b5-4e80-9dff-9c0c857f1495" />
+> We can do segmentation by finding the minimum cut in a graph
+> > Efficient algorithms exist for doing this
+<img width="1589" height="379" alt="image" src="https://github.com/user-attachments/assets/1f6cc97e-6ffd-4454-b7c9-7a2b46007c22" />
+
+### Normalized cuts
+> Write graph as V, one cluster as A and the other as B
+<img width="1589" height="183" alt="image" src="https://github.com/user-attachments/assets/8906a843-b08f-4270-832c-ed5bcc46bea8" />
+> cut(A,B) is sum of weights with one end in A and one end in В
+<img width="1589" height="137" alt="image" src="https://github.com/user-attachments/assets/3bd1b09a-fb74-4ef0-9119-f54adcbf0e69" />
+> assoc(A,V) is sum of all edges with one end in A.
+
+<img width="1589" height="137" alt="image" src="https://github.com/user-attachments/assets/cc08654a-401a-4aad-966f-75e43d156297" />
+
+> Let W be the adjacency matrix of the graph
+>‌ Let D be the diagonal matrix with diagonal entries
+> D(i, i) = Σk=j W(i, j)
+> Then the normalized cut cost can be written as
+
+<img width="1589" height="137" alt="image" src="https://github.com/user-attachments/assets/f0de2093-1815-43e9-b894-9cc954f583c9" />
+> where y is an indicator vector whose value should be 1 in
+> the ith position if the ith feature point belongs to A and a
+> negative constant otherwise
+
+ Finding the exact minimum of the normalized cut cost is NP complete, but if we relax y to take on arbitrary values, then
+we can minimize the relaxed cost by solving the generalized
+eigenvalue problem (D - W)y = ADy
+The solution y is given by the generalized eigenvector
+corresponding to the second smallest eigenvalue
+Intitutively, the ith entry of y can be viewed as a "soft"
+indication of the component membership of the ith feature
+Can use 0 or median value of the entries as the splitting point
+(threshold), or find threshold that minimizes the Ncut cost
+
+
+
+
+
+
+
+
 
 
 
