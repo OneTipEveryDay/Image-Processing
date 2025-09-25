@@ -294,8 +294,238 @@ often apply several filters one after another: (((a * b1) * b2) * b3)
 ### Sharpening
 <img width="1764" height="559" alt="image" src="https://github.com/user-attachments/assets/58feae39-570d-421a-9933-bbef8c2a218d" />
 
+## Morphological Image Processing
+> Binary dilation and erosion
+Set-theoretic interpretation
+Opening, closing, morphological edge detectors
+Hit-miss filter
+Morphological filters for gray-level images
+Cascading dilations and erosions
+Rank filters, median filters, majority filters
+
+### Shift invariance
+Assume that digital images f [x,y] and g [x,y] have infinite support <br>
+[x,y]  E {,-2,-1,0,1,2,}x{-2,-1,0,1,2,}
+then, for all integers a and Ь
+<img width="1573" height="273" alt="image" src="https://github.com/user-attachments/assets/50e249fe-4016-40b3-a610-1c37a4b36594" />
+
+### Structuring Element
+Neighborhood "window" operator
+
+<img width="1573" height="207" alt="image" src="https://github.com/user-attachments/assets/29c69189-9e5a-4fae-9269-c2f012ea081b" />
+Example structuring elements Пxy:
+
+<img width="1573" height="285" alt="image" src="https://github.com/user-attachments/assets/51e9ec8f-ba80-45cc-aff9-a60127488f5d" />
+
+### Binary dilation (expanding foreground)
+
+<img width="1701" height="644" alt="image" src="https://github.com/user-attachments/assets/749de6ab-a53e-4fdb-825d-27da54e2792f" />
+> Expands the size of 1-valued objects
+> Smoothes object boundaries
+> Closes holes and gaps
 
 
+### Binary erosion (shrinking foreground)
+
+<img width="1701" height="524" alt="image" src="https://github.com/user-attachments/assets/2add5817-d85c-47fc-8ae4-5e2c9fbdd480" />
+### Relationship between dilation and erosion
+Duality: erosion is dilation of the background , But: erosion is not the inverse of dilation
+
+<img width="1701" height="249" alt="image" src="https://github.com/user-attachments/assets/7077081f-9228-49fa-bb19-7059beebe6f1" />
+
+### Set-theoretic interpretation
+> Set of object pixels, Continuous (x,y).  Works for discrete [x,y]  in the same way.
+
+<img width="809" height="88" alt="image" src="https://github.com/user-attachments/assets/476fd798-506b-4f53-9c7b-f83a374269e3" />
+
+> Background: complement of foreground set
+
+
+<img width="809" height="88" alt="image" src="https://github.com/user-attachments/assets/5e8338f2-b13d-4b53-96d2-69e8b1c4bb89" />
+> Dilation is Minkowski set addition
+
+<img width="937" height="317" alt="image" src="https://github.com/user-attachments/assets/98315eb9-36b8-42a1-911a-b2d5532feb86" />
+
+### Opening and closing
+> Goal: smoothing without size change
+> Open filter open(f,W)= dilate(erode(f,W),w)
+> Close filter close(f,W)= erode{dilate(f,w),w)
+> Open filter and close filter are biased
+> > Open filter removes small 1-regions
+> > Close filter removes small 0-regions
+> Unbiased size-preserving smoothers
+close- open(f,W)= close(open(f,W),W)
+open- close(f,W)=open(close(f,W),W)
+> close-open and open-close are duals, but not inverses of each other.
+opening
+
+<img width="1730" height="663" alt="image" src="https://github.com/user-attachments/assets/efa771f9-f2de-427f-bf94-6c8381ea542a" />
+
+closing
+
+<img width="1730" height="663" alt="image" src="https://github.com/user-attachments/assets/1994b2e1-3087-4233-b8bb-5ef075127b26" />
+
+### An Example of Opening & Closing
+> An opening removes all noise
+> > removing the white noise by erosion
+> > removing the black noise by dilation
+> An additional closing fills the gaps
+
+
+<img width="1730" height="472" alt="image" src="https://github.com/user-attachments/assets/ae40bdb5-5d6e-44e1-9dba-568a2376156c" />
+
+### Morphological filters for gray-level images
+> Threshold sets of a gray-level image f [x,y] (aka level sets)
+
+<img width="1730" height="78" alt="image" src="https://github.com/user-attachments/assets/ea2441e1-2feb-48d7-9ab9-235b6338394a" />
+> Reconstruction of original image from threshold sets
+
+<img width="1730" height="78" alt="image" src="https://github.com/user-attachments/assets/8241616f-8a23-4335-b961-ff580ff22109" />
+### Dilation/erosion for gray-level images
+> Explicit decomposition into threshold sets not required in practice
+> Flat dilation operator: local maximum over window W
+
+<img width="1730" height="78" alt="image" src="https://github.com/user-attachments/assets/61372c37-aa94-403c-9bfd-858fdf24f0e2" />
+> Flat erosion operator: local minimum over window W
+
+<img width="1730" height="78" alt="image" src="https://github.com/user-attachments/assets/68c7bcea-65af-442e-95f9-eda944ba0ad2" />
+### 1-d illustration of erosion and dilation
+
+<img width="1729" height="656" alt="image" src="https://github.com/user-attachments/assets/99251516-9a4f-4c7c-9808-48238e422896" />
+### Beyond flat morphological operators
+> General dilation operator Like linear convolution, with sup replacing summation, addition replacing multiplication
+
+<img width="1740" height="105" alt="image" src="https://github.com/user-attachments/assets/f0ac030b-c5a7-43b2-beb1-82a156bc9c8e" />
+
+> Dilation with "unit impulse"
+
+<img width="1740" height="133" alt="image" src="https://github.com/user-attachments/assets/a4d2275f-92ad-4f0f-91fd-29b5a1b01859" />
+
+### erosions Cascaded 
+> Cascaded erosions can be lumped into single erosion
+erode [erode (f, w₁), w2] = erode [-dilate (-f, w₁), w₂]
+= -dilate [dilate (-f, ŵ₁), ŵ2]
+= -dilate (-f,w)
+= erode (f, w)
+where w = dilate (w1, W2)
+### Fast dilation and erosion
+> Idea: build larger dilation and erosion operators by cascading simple, small operators
+>Example: binary erosion by 11x11 window
+### Rank Filters
+> Generalisation of flat dilation/erosion: in lieu of min or max value in window, use the p-th ranked value
+> Increases robustness against noise
+> Best-known example: median filter for noise reduction
+> Concept useful for both gray-level and binary images
+> All rank filters are commutative with thresholding
+
+## Edge detection
+> Goal: Identify sudden changes (discontinuities) in an image
+> > Intuitively, most semantic and shape information from the image can be encoded in the edges
+> > More compact than pixels
+> Ideal: artist's line drawing (but artist is also using object - level knowledge)
+
+### Gradient-based edge detection
+> Idea (continous-space): local gradient magnitude indicates edge strength
+> Digital image: use finite differences to approximate derivatives
+> Edge templates
+
+
+<img width="1557" height="488" alt="image" src="https://github.com/user-attachments/assets/dbf224b3-b838-4f35-ad86-33fcbc8560aa" />
+
+###  Laplacian operator
+> Detect edges by considering second derivative
+
+<img width="1582" height="156" alt="image" src="https://github.com/user-attachments/assets/f869b7a1-7d38-41c8-8f4c-f8d85bb84319" />
+
+> Isotropic (rotationally invariant) operator
+> Zero-crossings mark edge location
+
+### Canny edge detector
+> Smooth image with a Gaussian filter
+> Approximate gradient magnitude and angle (use Sobel, Prewitt...)
+
+<img width="1582" height="217" alt="image" src="https://github.com/user-attachments/assets/7be59bfa-5418-447e-814c-831ab5009e5f" />
+
+> Apply nonmaxima suppression to gradient magnitude
+> Double thresholding to detect strong and weak edge pixels
+> Reject weak edge pixels not connected with strong edge pixels
+### Hough transform
+> Problem: fit a straight line (or curve) to a set of edge pixels
+> Hough transform (1962): generalized template matching technique
+> Consider detection of straight lines y = mx + c <br>
+> Subdivide (m,c) plane into discrete "bins," initialize all bin counts by 0
+> Draw a line in the parameter space [m,c] for each edge pixel [x,y] and
+> increment bin counts along line.
+> Detect peak(s) in [m,c] plane
+
+<img width="1549" height="442" alt="image" src="https://github.com/user-attachments/assets/8e5eb0f1-b3fd-41a4-b10f-18480ad00bf9" />
+## Image segmentation
+Goal: identify groups of pixels that go together and  Separate image into coherent "objects"
+### What is segmentation?
+> Clustering image elements that "belong together"
+>Partitioning
+> > Divide into regions/sequences with coherent internal properties
+> Grouping
+> > Identify sets of coherent tokens in image
+
+### Segmentation methods
+> Segment foreground from background
+> Histogram-based segmentation
+> Segmentation as clustering
+> > K-means clustering
+> > Mean-shift segmentation
+> Graph-theoretic segmentation
+> > Min cut
+> >‌ Normalized cuts
+> Interactive segmentation
+### Clustering
+> With this objective, it is a "chicken and egg" problem:
+> > If we knew the cluster centers, we could allocate points to groups by assigning each to its closest center.
+> > If we knew the group memberships, we could get the centers by computing the mean per group.
+
+### Segmentation as clustering
+> Cluster together (pixels, tokens, etc.) that belong together...
+> Agglomerative clustering
+> > attach closest to cluster it is closest to - repeat
+> Divisive clustering
+> > split cluster along best boundary - repeat
+> Dendrograms
+yield a picture of output as clustering process continues
+
+<img width="1553" height="654" alt="image" src="https://github.com/user-attachments/assets/2fa7cab1-abba-453f-a029-0569d171421e" />
+
+### K-means clustering
+> Basic idea: randomly initialize the k cluster centers,
+and iterate between the two steps we just saw.
+> > 1. Randomly initialize the cluster centers, C..., CK
+>‌ > 2. Given cluster centers, determine points in each cluster
+> > > For each point p, find the closest c. Put p into cluster i
+> > 3. Given points in each cluster, solve for c
+> > > Set c, to be the mean of points in cluster i
+> > 4. If c, have changed, repeat Step 2
+> Properties
+> > Will always converge to some solution
+> > Can be a "local minimum"
+> > >does not always find the global minimum of objective function:
+> Depending on what we choose as the feature space, we can group pixels in different ways
+> Grouping pixels based on color similarity
+> Feature space: color value (3-d)
+<img width="1553" height="471" alt="image" src="https://github.com/user-attachments/assets/a71a143e-cb4a-4290-8eef-46f474a782f7" />
+
+### Mean shift clustering and segmentation
+An advanced and versatile technique for clustering-based segmentation
+<img width="1553" height="603" alt="image" src="https://github.com/user-attachments/assets/dedc33ad-933b-49e7-a546-d6480375c0d7" />
+### Mean shift algorithm
+> 1. Choose a search window size.
+> 2. Choose the initial location of the search window.
+> 3. Compute the mean location (centroid of the data) in the search window.
+> 4. Center the search window at the mean location computed in Step 3.
+> 5. Repeat Steps 3 and 4 until convergence. The mean shift algorithm seeks the "mode" or point of highest density of a data distribution:
+> Two issues:
+> > (1) Kernel to interpolate density based on sample positions.
+>‌ > (2) Gradient ascent to mode.
+
+### Graph-Theoretic Image Segmentation
 
 
 
