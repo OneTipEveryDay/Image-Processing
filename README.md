@@ -581,6 +581,157 @@ indication of the component membership of the ith feature
 Can use 0 or median value of the entries as the splitting point
 (threshold), or find threshold that minimizes the Ncut cost
 
+## Panorama Stitching
+
+<img width="1581" height="619" alt="image" src="https://github.com/user-attachments/assets/c12bd2d6-ca56-4da3-9782-e9c89064fc92" />
+
+<img width="1581" height="460" alt="image" src="https://github.com/user-attachments/assets/21236e65-5ae5-4ecd-a7f1-88bd153809dc" />
+
+### Mathematical Formulation
+We would like a feature to be located where a slight
+shift in any direction causes a large difference, i.e. we
+want the following energy function to be large for any
+deltau=[deltax, deltay] :
+<img width="1582" height="138" alt="image" src="https://github.com/user-attachments/assets/20763860-5843-466e-a6b4-1d361a16f532" />
+
+Sum is over a window centered at the point being examined.W(x) is usually a Gaussian function
+
+### Keypoint detection
+
+Many applications benefit from features localized in (x,y)
+(image registration, panorama stitching, motion estimation +
+tracking, recognition...)
+Edges well localized only in one direction → detect corners?
+> Desirable properties of keypoint detector
+> > Accurate localization
+> > Invariance against shift, rotation, scale, brightness change
+> > Robustness against noise, high repeatability
+### Laplacian keypoint detector
+<img width="1745" height="270" alt="image" src="https://github.com/user-attachments/assets/22e1555c-d1f9-4006-8fc8-ede6866ec89f" />
+<img width="1745" height="707" alt="image" src="https://github.com/user-attachments/assets/7c1c3d2d-100a-422b-ae45-2c188d2d2b5d" />
+
+### Determinant of Hessian keypoint detector
+<img width="1745" height="547" alt="image" src="https://github.com/user-attachments/assets/e69f4f03-f5e8-4600-bd86-2902b2cc9916" />
+
+### Harris detector
+Based on eigenvalues landa1, landa2, of "structure matrix"
+<img width="1745" height="547" alt="image" src="https://github.com/user-attachments/assets/0e691961-6d10-4313-a9e6-307237a98993" />
+<img width="1745" height="547" alt="image" src="https://github.com/user-attachments/assets/2258525a-23f2-4cea-811e-cc526b749c11" />
+### Normalized Laplacian Operator for Feature Detection
+<img width="1745" height="675" alt="image" src="https://github.com/user-attachments/assets/6b4c9c22-6f1a-4170-9017-876e8b906691" />
+
+The local maxima of the absolute value of o²V²G (normalized
+Laplacian) produce the most stable image features compared
+to a range of other possible image functions, such as the gradient, Hessian, or Harris corner function.
+Can apply the Laplacian operator using different o to detect
+feature points at different scales.
+### Gaussian Scale Space
+A Gaussian pyramid with multiple scales at the same resolution:
+<img width="1745" height="675" alt="image" src="https://github.com/user-attachments/assets/fbe80e96-72c1-4dc0-84f8-20da5dd27d75" />
+
+### Using Difference of Gaussian to Approximate Normalized Laplacian
+<img width="1741" height="131" alt="image" src="https://github.com/user-attachments/assets/f1c43ce9-b3d8-4ca7-907a-87f80a334125" />
+
+### Harris- Laplacian Detector
+> Detect Harris corners at multiple scales (on the Gaussian filtered
+> images at scales , n=0,1,...,.)
+> For each detected Harris corner xy, at any scale,determine the
+> characteristic scale (the scale at which Laplacian/DoG achieves maximum or minimum)
+
+<img width="1740" height="577" alt="image" src="https://github.com/user-attachments/assets/2c96947b-024b-4a10-ab1b-57ad02c4d301" />
+
+### General Approach for Feature Descriptors
+> Desirable properties
+> > Invariant to shift, scale and rotations and contrast differences
+> General approach:
+> > Determine the scale where a feature is most stable
+> > Determine the orientation of the small patch surrounding this feature point at this scale
+> > Characterize a small patch tilted in this orientation scale with a descriptor
+> > The descriptor should be invariant to intensity shift or scaling, and small position shift
+> Most popular: SIFT descriptor by David Lowe (UBC)
+> > > http://www.cs.ubc.ca/~lowe/keypoints/
+> > > Caveat: SIFT feature detector vs. SIFT descriptor!
+> Descriptor use normalized patches where the dominant line in an original patch is rotated to a standard direction (e.g. vertical!) and the original patch is scaled to the same size!
+
+### Determination of Dominant Orientation
+<img width="1576" height="206" alt="image" src="https://github.com/user-attachments/assets/c16e7696-f268-44e7-8abc-10a48984f0fc" />
+
+### SIFT Descriptor
+ > Put a patch of 16x16 around each feature point at the detected scale in the Gaussian scale space.
+> Generate a HOG for the entire patch, determine the dominant orientation
+> Divide it into 4x4 cells, each cell 4x4 in size
+> Generate a (HoG) for each cell with 8 bins
+> Shift each HoG so that the dominant orientation is in the first bin (0 degree).
+> Concatenate the shifted HoG of each cell into a single descriptor
+> > 16 cells * 8 orientations= 128 dimension descriptor!
+> Normalize the descriptor so that it is invariant to intensity variation
+> > Set all entries > 0.2 to 0.2
+> > Normalize the resulting descriptor
+>‌ > Robust to contrast/brightness variation!
+> SIFT descriptor can be used for feature points extracted by othermethods (e.g. Harris).
+> >‌ Harris-Laplacian Detector + SIFT Descriptor is a popular combination!
+### Power of SIFT Descriptor
+> Can handle changes in viewpoint
+> Up to about 60 degree out of plane rotation
+> Can handle significant changes in illumination
+> Sometimes even day vs. night (below)
+> Fast and efficient-can run in real time
+> Lots of code available
+
+### Learnt Feature Detectors and Descriptors 
+Yi, K. M., Trulls, E., Lepetit, V., and Fua, P. (2016). LIFT: Learned
+invariant feature transform. In European Conference on Computer Vision, pp. 467-483.
+DeTone, D., Malisiewicz, T., and Rabinovich, A. (2018). SuperPoint: Selfsupervised interest point detection and description.
+In IEEE Conference on Computer Vision and Pattern Recognition Workshops, pp. 224-236.
+Balntas, V., Lenc, K., Vedaldi, A., Tuytelaars, T., Matas, J., and Mikolajczyk, K. (2019). HPatches: A benchmark and evaluation of
+handcrafted and learned local descriptors. IEEE Transactions
+on Pattern Analysis and Machine Intelligence, early access. (A
+good review of various approaches)
+
+## Image Pyramids
+> Image information occurs over many different spatial scales.
+> Image pyramids -multi- resolution representations for images
+> are a useful data structure for analyzing and manipulating
+>‌ images over a range of spatial scales.
+
+### Review of Sampling
+<img width="1573" height="636" alt="image" src="https://github.com/user-attachments/assets/c315c082-702a-4b2d-8e94-e4ec4a74c55e" />
+### The Gaussian pyramid
+> Smooth with Gaussians, because
+> A Gaussian*Gaussian = another Gaussian
+> Gaussians are low pass filters, so representation is redundant.
+> Gaussian pyramid creates versions of the input image at multiple resolutions.
+>‌ This is useful for analysis across different spatial scales, but doesn't separate the image into different frequency bands.
+<img width="1748" height="636" alt="image" src="https://github.com/user-attachments/assets/9ceb2495-ac6a-49d3-a320-5afd1f148120" />
+### Gaussian pyramids used for
+> up- or down- sampling images.
+> Multi-resolution image analysis
+> > Look for an object over various spatial scales
+> > Coarse-to-fine image processing: form blur estimate or the motion analysis on very low-resolution image, upsample and repeat. Often a successful strategy for avoiding local minima in complicated estimation tasks.
+
+### The Laplacian Pyramid
+> Synthesis
+> band pass filter - each level represents spatial frequencies (largely) unrepresented at other level.
+> Laplacian pyramid provides an extra level of analysis as compared to Gaussian pyramid by breaking the image into different isotropic spatial frequency bands.
+<img width="1748" height="471" alt="image" src="https://github.com/user-attachments/assets/bceb67d8-0fa2-424d-bc5b-bd6455b0468b" />
+
+### Upsampling
+Showing, at full resolution, the information captured at each
+level of a Gaussian (top) and Laplacian (bottom) pyramid.
+
+#### Laplacian pyramid applications
+Texture synthesis
+Image compression
+Noise removal
+
+### Wavelet/QMF pyramid
+> Subband coding
+> Wavelet or QMF (quadrature mirror filter) pyramid provides some splitting of the spatial frequency bands according to orientation (although in a somewhat limited way).
+> Image is decomposed into a set of band-limited components (subbands).
+> Original image can be reconstructed without error by reassemblying these subbands.
+### Hybrid Images
+![Uploading image.png…]()
+
 
 
 
